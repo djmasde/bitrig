@@ -1992,13 +1992,13 @@
 ./usr/lib/libcom_err.so.20.0
 ./usr/lib/libcom_err_p.a
 ./usr/lib/libcrypto.a
-./usr/lib/libcrypto.so.23.0
+./usr/lib/libcrypto.so.24.0
 ./usr/lib/libcrypto_p.a
 ./usr/lib/libcurses.a
 ./usr/lib/libcurses.so.14.0
 ./usr/lib/libcurses_p.a
 ./usr/lib/libedit.a
-./usr/lib/libedit.so.5.0
+./usr/lib/libedit.so.6.0
 ./usr/lib/libedit_p.a
 ./usr/lib/libevent.a
 ./usr/lib/libevent.so.4.0
@@ -2009,7 +2009,7 @@
 ./usr/lib/libfl.a
 ./usr/lib/libfl_p.a
 ./usr/lib/libform.a
-./usr/lib/libform.so.6.0
+./usr/lib/libform.so.7.0
 ./usr/lib/libform_p.a
 ./usr/lib/libformw.a
 ./usr/lib/libformw.so.6.0
@@ -2049,10 +2049,10 @@
 ./usr/lib/libl.a
 ./usr/lib/libl_p.a
 ./usr/lib/libm.a
-./usr/lib/libm.so.9.0
+./usr/lib/libm.so.10.0
 ./usr/lib/libm_p.a
 ./usr/lib/libmenu.a
-./usr/lib/libmenu.so.6.0
+./usr/lib/libmenu.so.7.0
 ./usr/lib/libmenu_p.a
 ./usr/lib/libmenuw.a
 ./usr/lib/libmenuw.so.6.0
@@ -2064,7 +2064,7 @@
 ./usr/lib/libncursesw.so.14.0
 ./usr/lib/libncursesw_p.a
 ./usr/lib/libocurses.a
-./usr/lib/libocurses.so.6.0
+./usr/lib/libocurses.so.7.0
 ./usr/lib/libocurses_p.a
 ./usr/lib/libossaudio.a
 ./usr/lib/libossaudio.so.4.0
@@ -2093,7 +2093,7 @@
 ./usr/lib/librpcsvc.so.2.0
 ./usr/lib/librpcsvc_p.a
 ./usr/lib/libskey.a
-./usr/lib/libskey.so.6.0
+./usr/lib/libskey.so.7.0
 ./usr/lib/libskey_p.a
 ./usr/lib/libsndio.a
 ./usr/lib/libsndio.so.6.0
@@ -2114,7 +2114,7 @@
 ./usr/lib/libusbhid.so.6.0
 ./usr/lib/libusbhid_p.a
 ./usr/lib/libutil.a
-./usr/lib/libutil.so.12.0
+./usr/lib/libutil.so.13.0
 ./usr/lib/libutil_p.a
 ./usr/lib/libwind.a
 ./usr/lib/libwind.so.1.0

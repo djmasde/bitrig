@@ -144,7 +144,12 @@ __attribute__((unused)) static void*
 xlocale_retain(void *val)
 {
 	struct xlocale_refcounted *obj = val;
+#ifdef HAVE_ATOMICS
 	atomic_add_long(&(obj->retain_count), 1);
+#else
+	// XXX XXX XXX HACK HACK HACK SPEEDBUMP
+	obj->retain_count++;
+#endif
 	return (val);
 }
 /**
@@ -155,7 +160,13 @@ __attribute__((unused)) static void
 xlocale_release(void *val)
 {
 	struct xlocale_refcounted *obj = val;
+#ifdef HAVE_ATOMICS
 	long count = atomic_fetchadd_long(&(obj->retain_count), -1) - 1;
+#else
+	// XXX XXX XXX HACK HACK HACK SPEEDBUMP
+	obj->retain_count--;
+	long count = obj->retain_count;
+#endif
 	if (count < 0) {
 		if (0 != obj->destructor) {
 			obj->destructor(obj);
