@@ -67,6 +67,7 @@ struct board_dev chromebook_devs[] = {
 	{ "exiic",	4 },
 //	{ "exesdhc",	2 },
 //	{ "exesdhc",	3 },
+	{ "exdisplay",	0 },
 	{ NULL,		0 }
 };
 

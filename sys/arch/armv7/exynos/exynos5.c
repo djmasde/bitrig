@@ -303,6 +303,9 @@ struct ex_dev exynos5_devs[] = {
 	  },
 	  .irq = { USB_IRQ }
 	},
+	{ .name = "exdisplay",
+	  .unit = 0,
+	},
 
 	/* Terminator */
 	{ .name = NULL,

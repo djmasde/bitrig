@@ -63,18 +63,64 @@ bus_addr_t		exdisplayaddr;
 struct wsscreen_descr	descr;
 struct rasops_info	ri;
 
+static const struct wsscreen_descr *exdisplay_scr_descr[] = {
+        NULL
+};
+
+const struct wsscreen_list exdisplay_screen_list = {
+        sizeof exdisplay_scr_descr / sizeof exdisplay_scr_descr[0],
+	exdisplay_scr_descr
+};
+
+int	exdisplay_ioctl(void *, u_long, caddr_t, int, struct proc *);
+void	exdisplay_burner(void *, u_int, u_int);
+int	exdisplay_show_screen(void *, void *, int,
+            void (*)(void *, int, int), void *);
+int	exdisplay_alloc_screen(void *, const struct wsscreen_descr *,
+	    void **, int *, int *, long *);
+void	exdisplay_free_screen(void *, void *);
+paddr_t	exdisplay_mmap(void *, off_t, int);
+
+
+const struct wsdisplay_accessops exdisplay_accessops = {
+        exdisplay_ioctl,
+	exdisplay_mmap,
+	exdisplay_alloc_screen,
+	exdisplay_free_screen,
+	exdisplay_show_screen,
+	NULL,   /* load_font */
+	NULL,   /* scrollback */
+	NULL,   /* getchar */
+	exdisplay_burner
+};
+
+
+int glass_console;
 void
 exdisplay_attach(struct device *parent, struct device *self, void *args)
 {
 	struct ex_attach_args *ea = args;
+	struct wsemuldisplaydev_attach_args aa;
 	struct exdisplay_softc *sc = (struct exdisplay_softc *) self;
 
 	sc->sc_iot = ea->ea_iot;
+/*
 	if (bus_space_map(sc->sc_iot, ea->ea_dev->mem[0].addr,
 	    ea->ea_dev->mem[0].size, 0, &sc->sc_ioh))
 		panic("exdisplay_attach: bus_space_map failed!");
+*/
+	sc->sc_ioh
 
 	printf("\n");
+
+	aa.console = glass_console;
+	aa.scrdata = &exdisplay_screen_list;
+	aa.accessops = &exdisplay_accessops;
+	aa.accesscookie = sc;
+	aa.defaultscreens = 0;
+
+	(void)config_found(self, &aa, wsemuldisplaydevprint);
+
 	exdisplay_sc = sc;
 }
 
@@ -97,6 +143,7 @@ exdisplay_cnattach(bus_space_tag_t iot, bus_addr_t iobase, size_t size)
 	ri.ri_ops.alloc_attr(&ri, 0, 0, 0, &defattr);
 
 	wsdisplay_cnattach(&descr, &ri, ri.ri_ccol, ri.ri_crow, defattr);
+	glass_console = 1;
 
 	return 0;
 }
@@ -132,4 +179,41 @@ exdisplay_setup_rasops(struct rasops_info *rinfo, struct wsscreen_descr *descr)
 	descr->ncols = rinfo->ri_cols;
 	descr->capabilities = rinfo->ri_caps;
 	descr->textops = &rinfo->ri_ops;
+}
+
+int
+exdisplay_ioctl(void *v, u_long cmd, caddr_t data, int flag, struct proc *p)
+
+{
+	return 0;
+}
+
+void
+exdisplay_burner(void *v, u_int on, u_int flags)
+{
+}
+
+int
+exdisplay_show_screen(void *v, void *cookie, int waitok,
+    void (*cb)(void *, int, int), void *cbarg)
+{
+	return 0;
+}
+
+int
+exdisplay_alloc_screen(void *v, const struct wsscreen_descr *_type,
+    void **cookiep, int *curxp, int *curyp, long *attrp)
+{
+	return 0;
+}
+
+void
+exdisplay_free_screen(void *v, void *cookie)
+{
+}
+
+paddr_t
+exdisplay_mmap(void *v, off_t offset, int prot)
+{
+	return 0;
 }
