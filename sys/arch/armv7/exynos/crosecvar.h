@@ -18,6 +18,8 @@
 #ifndef CROSECVAR_H
 #define CROSECVAR_H
 
+#include <sys/workq.h>
+#include <sys/timeout.h>
 #include <dev/i2c/i2cvar.h>
 #include <armv7/exynos/ec_commands.h>
 
@@ -50,6 +52,17 @@ struct cros_ec_softc {
 	} keyboard;
 	uint8_t in[MSG_BYTES_ALIGNED];
 	uint8_t out[MSG_BYTES_ALIGNED];
+	
+	int sc_rawkbd;
+        struct timeout sc_roll_to;
+	struct  workq_task wqt;    	/* Allow i2c driver to sleep, kbd */
+
+
+#ifdef WSDISPLAY_COMPAT_RAWKBD
+	const char *sc_xt_keymap;
+#define MAXKEYS 20
+#endif
+
 };
 
 int	cros_ec_check_version(struct cros_ec_softc *);

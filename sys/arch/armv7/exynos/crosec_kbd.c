@@ -17,9 +17,11 @@
 
 #include <sys/param.h>
 #include <sys/systm.h>
+#include <sys/kernel.h>
 #include <sys/device.h>
 #include <sys/sensors.h>
 #include <sys/malloc.h>
+#include <sys/workq.h>
 
 #include <armv7/exynos/crosecvar.h>
 
@@ -42,6 +44,11 @@ struct wskbd_accessops cros_ec_keyboard_accessops = {
 
 void cros_ec_keyboard_cngetc(void *, u_int *, int *);
 void cros_ec_keyboard_cnpollc(void *, int);
+void cros_kdb_poll(void *);
+void cros_kdb_workq_task(void *, void *);
+
+#define REP_DELAY1 400
+#define REP_DELAYN 100
 
 struct wskbd_consops cros_ec_keyboard_consops = {
 	cros_ec_keyboard_cngetc,
@@ -120,6 +127,7 @@ cros_ec_init_keyboard(struct cros_ec_softc *sc)
 {
 	struct ec_response_cros_ec_info info;
 	struct wskbddev_attach_args a;
+	int s;
 
 	if (cros_ec_info(sc, &info)) {
 		printf("%s: could not read KBC info\n", __func__);
@@ -152,7 +160,40 @@ cros_ec_init_keyboard(struct cros_ec_softc *sc)
 
 	sc->keyboard.wskbddev = config_found((void *)sc, &a, wskbddevprint);
 
+	s = splhigh();
+
+	timeout_set(&(sc->sc_roll_to), cros_kdb_poll, sc);
+
+	/* XXX - this should timeout should start when a key is pressed *
+	 * and not run when no keys are pressed
+	 * XXX - gpio interrupt
+	 */
+	timeout_add(&(sc->sc_roll_to), hz * REP_DELAYN / 1000 / 2);
+
+
+
+	splx(s);
+
 	return 0;
+}
+
+void
+cros_kdb_workq_task(void *v, void *v1)
+{
+	struct cros_ec_softc *sc = v;
+	cros_ec_get_keystate(sc);
+}
+
+void
+cros_kdb_poll(void *v)
+{
+	struct cros_ec_softc *sc = v;
+	int s;
+	s = splhigh();
+
+	workq_queue_task(NULL, &sc->wqt, 0, cros_kdb_workq_task, v, NULL);
+
+	splx(s);
 }
 
 int
@@ -184,6 +225,11 @@ cros_ec_get_keystate(struct cros_ec_softc *sc)
 			}
 		}
 	}
+	if (!sc->keyboard.polling) {
+		// keysup should be a different delay?
+		timeout_add(&(sc->sc_roll_to), hz * REP_DELAYN / 1000 / 2);
+	}
+
 	return (-1);
 }
 

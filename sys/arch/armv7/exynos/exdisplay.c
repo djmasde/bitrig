@@ -109,8 +109,6 @@ exdisplay_attach(struct device *parent, struct device *self, void *args)
 	    ea->ea_dev->mem[0].size, 0, &sc->sc_ioh))
 		panic("exdisplay_attach: bus_space_map failed!");
 */
-	sc->sc_ioh
-
 	printf("\n");
 
 	aa.console = glass_console;
