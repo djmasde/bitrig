@@ -180,8 +180,17 @@ cros_ec_init_keyboard(struct cros_ec_softc *sc)
 void
 cros_kdb_workq_task(void *v, void *v1)
 {
+	
 	struct cros_ec_softc *sc = v;
 	cros_ec_get_keystate(sc);
+
+	if (!sc->keyboard.polling) {
+		// keysup should be a different delay?
+		//timeout_add(&(sc->sc_roll_to), hz * REP_DELAYN / 1000 / 2);
+		timeout_add(&(sc->sc_roll_to), hz );
+		printf("@");
+	}
+
 }
 
 void
@@ -207,29 +216,24 @@ cros_ec_get_keystate(struct cros_ec_softc *sc)
 			int off = row*sc->keyboard.cols;
 			int pressed = !!(state[col] & (1 << row));
 			if (pressed && !sc->keyboard.state[off+col]) {
-				//printf("row %d col %d id %d pressed\n", row, col, off+col);
+				printf("row %d col %d id %d pressed\n", row, col, off+col);
 				sc->keyboard.state[off+col] = 1;
 				if (sc->keyboard.polling)
 					return off+col;
 				wskbd_input(sc->keyboard.wskbddev, WSCONS_EVENT_KEY_DOWN, off+col);
 			} else if (!pressed && sc->keyboard.state[off+col]) {
-				//printf("row %d col %d id %d released\n", row, col, off+col);
+				printf("row %d col %d id %d released\n", row, col, off+col);
 				sc->keyboard.state[off+col] = 0;
 				if (sc->keyboard.polling)
 					return off+col;
 				wskbd_input(sc->keyboard.wskbddev, WSCONS_EVENT_KEY_UP, off+col);
 			} else if (sc->keyboard.state[off+col]) {
-				//printf("row %d col %d id %d repeated\n", row, col, off+col);
+				printf("row %d col %d id %d repeated\n", row, col, off+col);
 				if (sc->keyboard.polling)
 					return off+col;
 			}
 		}
 	}
-	if (!sc->keyboard.polling) {
-		// keysup should be a different delay?
-		timeout_add(&(sc->sc_roll_to), hz * REP_DELAYN / 1000 / 2);
-	}
-
 	return (-1);
 }
 

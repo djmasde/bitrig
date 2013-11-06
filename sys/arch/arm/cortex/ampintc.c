@@ -482,15 +482,15 @@ ampintc_irq_handler(void *frame)
 	int			 irq, pri, s;
 
 	iack_val = ampintc_iack();
-//#define DEBUG_INTC
+#define DEBUG_INTC
 #ifdef DEBUG_INTC
-	if (iack_val != 27)
+	if (iack_val != 29)
 	printf("irq  %d fired\n", iack_val);
 	else {
 		static int cnt = 0;
 		if ((cnt++ % 100) == 0) {
 			printf("irq  %d fired * _100\n", iack_val);
-			Debugger();
+			//Debugger();
 		}
 
 	}
