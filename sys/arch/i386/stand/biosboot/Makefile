@@ -1,7 +1,5 @@
 #	$OpenBSD: Makefile,v 1.26 2013/01/18 21:09:04 espie Exp $
 
-CC=gcc
-
 MAN=	biosboot.8
 
 .if ${MACHINE} == "i386"
@@ -26,7 +24,7 @@ CPPFLAGS+=-DLOADADDR=$(LOADADDR) -DLINKADDR=$(LINKADDR) -DBOOTMAGIC=$(BOOTMAGIC)
 CPPFLAGS+=${DEBUGFLAGS}
 CFLAGS+=-fno-pie
 #AFLAGS+=-Wa,-a
-AFLAGS+=-fno-pie
+AFLAGS+=-fno-pie -no-integrated-as
 .else
 NOPROG=
 .endif

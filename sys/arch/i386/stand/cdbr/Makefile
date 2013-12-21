@@ -1,8 +1,6 @@
 #	$OpenBSD: Makefile,v 1.5 2013/01/18 03:45:23 jsing Exp $
 #
 
-CC=gcc
-
 S=	${.CURDIR}/../../../..
 SADIR=	${.CURDIR}/..
 
@@ -11,7 +9,7 @@ SRCS=	cdbr.S
 AFLAGS+=-I${.CURDIR} -I${.CURDIR}/../../.. #-Wa,-a
 AFLAGS+=-DOSREV=\"${OSREV}\"
 AFLAGS+=-DMACH=\"${MACHINE}\" -DMACH_U=\"${MACHINE:U}\"
-AFLAGS+=-fno-pie
+AFLAGS+=-fno-pie -no-integrated-as
 LD=ld
 ORG=	0x0000
 LDFLAGS=-nostdlib -Ttext ${ORG} -x -N -s -Bstatic -e start -nopie

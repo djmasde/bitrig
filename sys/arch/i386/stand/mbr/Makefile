@@ -1,15 +1,13 @@
 #	$OpenBSD: Makefile,v 1.19 2013/01/18 21:09:04 espie Exp $
 #
 
-CC=gcc
-
 S=	${.CURDIR}/../../../..
 SADIR=	${.CURDIR}/..
 
 PROG=	mbr
 SRCS=	mbr.S
 AFLAGS+=-I${.CURDIR} -I${.CURDIR}/../../.. #-Wa,-a
-AFLAGS+=-fno-pie
+AFLAGS+=-fno-pie -no-integrated-as
 LD=ld
 LDFLAGS=-nostdlib -Ttext 0 -x -N -s -Bstatic -e start -nopie
 

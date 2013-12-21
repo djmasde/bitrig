@@ -1,6 +1,5 @@
 #	$OpenBSD: Makefile,v 1.15 2013/04/23 16:41:13 jsing Exp $
 
-CC=	gcc
 MAN=	pxeboot.8
 
 .if ${MACHINE} == "i386"
@@ -73,4 +72,8 @@ CPPFLAGS+=-I${S}/stand/boot
 CFLAGS+=$(SACFLAGS) -D__INTERNAL_LIBSA_CREAD -fno-pie
 #AFLAGS+=-Wa,-R
 # AFLAGS+=-Wa,-a
-AFLAGS+=-fno-pie
+AFLAGS+=-fno-pie ${AFLAGS_$*}
+
+AFLAGS_gidt = -no-integrated-as
+AFLAGS_srt0 = -no-integrated-as
+AFLAGS_pxe_call = -no-integrated-as
