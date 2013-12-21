@@ -76,6 +76,7 @@ bsd:
 	    ${MAKE} clean && COPTS="${COPTS}" exec ${MAKE}
 	cp ${.CURDIR}/../../../sys/arch/i386/compile/${RAMDISK}/bsd bsd
 
+.ORDER:  ${CBIN} rd_setup do_files rd_teardown
 ${IMAGE}: ${CBIN} rd_setup do_files rd_teardown
 
 rd_setup: ${CBIN}
