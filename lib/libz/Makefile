@@ -2,8 +2,9 @@
 
 LIB=	z
 HDRS=	zconf.h zlib.h
-SRCS=	adler32.c compress.c crc32.c deflate.c gzio.c infback.c \
-	inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
+SRCS=	adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c \
+	gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c \
+	trees.c uncompr.c zutil.c
 MAN=	compress.3
 MLINKS=	compress.3 zlibVersion.3 compress.3 deflateInit.3 \
 	compress.3 deflate.3 compress.3 deflateEnd.3 \
@@ -35,7 +36,7 @@ MLINKS=	compress.3 zlibVersion.3 compress.3 deflateInit.3 \
 	compress.3 gzclearerr.3 \
 	compress.3 adler32.3 compress.3 adler32_combine.3 \
 	compress.3 crc32.3 compress.3 crc32_combine.3
-CFLAGS+=-DHAVE_STRERROR -DHAVE_MEMCPY -DHAS_vsnprintf -DHAS_snprintf
+CFLAGS+=-DHAVE_HIDDEN -DHAVE_STDARG_H -DHAVE_UNISTD_H
 
 PC_FILES=zlib.pc
 CLEANFILES+=${PC_FILES}
