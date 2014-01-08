@@ -610,7 +610,7 @@ int flush;
 #endif
                 ((BITS(8) << 8) + (hold >> 8)) % 31) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"incorrect header check";
 #endif
@@ -619,7 +619,7 @@ int flush;
             }
             if (BITS(4) != Z_DEFLATED) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown compression method";
 #endif
@@ -627,17 +627,17 @@ int flush;
                 break;
             }
             DROPBITS(4);
-	    len = BITS(4) + 8;
-	    if (len > state->wbits) {
+            len = BITS(4) + 8;
+            if (len > state->wbits) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid window size";
 #endif
                 state->mode = BAD;
                 break;
             }
-	    state->dmax = 1U << len;
+            state->dmax = 1U << len;
             Tracev((stderr, "inflate:   zlib header ok\n"));
             strm->adler = state->check = adler32(0L, Z_NULL, 0);
             state->mode = hold & 0x200 ? DICTID : TYPE;
@@ -649,7 +649,7 @@ int flush;
             state->flags = (int)(hold);
             if ((state->flags & 0xff) != Z_DEFLATED) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown compression method";
 #endif
@@ -658,7 +658,7 @@ int flush;
             }
             if (state->flags & 0xe000) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown header flags set";
 #endif
@@ -766,7 +766,7 @@ int flush;
                 NEEDBITS(16);
                 if (hold != (state->check & 0xffff)) {
 #ifdef SMALL  
-		    strm->msg = "error";
+                    strm->msg = "error";
 #else
                     strm->msg = (char *)"header crc mismatch";
 #endif
@@ -825,7 +825,7 @@ int flush;
                 break;
             case 3:
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid block type";
 #endif
@@ -838,7 +838,7 @@ int flush;
             NEEDBITS(32);
             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid stored block lengths";
 #endif
@@ -878,7 +878,7 @@ int flush;
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"too many length or distance symbols";
 #endif
@@ -904,7 +904,7 @@ int flush;
                                 &(state->lenbits), state->work);
             if (ret) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid code lengths set";
 #endif
@@ -932,7 +932,7 @@ int flush;
                         DROPBITS(this.bits);
                         if (state->have == 0) {
 #ifdef SMALL  
-			    strm->msg = "error";
+                            strm->msg = "error";
 #else
                             strm->msg = (char *)"invalid bit length repeat";
 #endif
@@ -959,7 +959,7 @@ int flush;
                     }
                     if (state->have + copy > state->nlen + state->ndist) {
 #ifdef SMALL  
-			strm->msg = "error";
+                        strm->msg = "error";
 #else
                         strm->msg = (char *)"invalid bit length repeat";
 #endif
@@ -982,7 +982,7 @@ int flush;
                                 &(state->lenbits), state->work);
             if (ret) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid literal/lengths set";
 #endif
@@ -995,7 +995,7 @@ int flush;
                             &(state->next), &(state->distbits), state->work);
             if (ret) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distances set";
 #endif
@@ -1044,7 +1044,7 @@ int flush;
             }
             if (this.op & 64) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid literal/length code";
 #endif
@@ -1080,7 +1080,7 @@ int flush;
             DROPBITS(this.bits);
             if (this.op & 64) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distance code";
 #endif
@@ -1105,7 +1105,7 @@ int flush;
 #endif
             if (state->offset > state->whave + out - left) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distance too far back";
 #endif
@@ -1161,7 +1161,7 @@ int flush;
 #endif
                      REVERSE(hold)) != state->check) {
 #ifdef SMALL  
-		    strm->msg = "error";
+                    strm->msg = "error";
 #else
                     strm->msg = (char *)"incorrect data check";
 #endif
@@ -1178,7 +1178,7 @@ int flush;
                 NEEDBITS(32);
                 if (hold != (state->total & 0xffffffffUL)) {
 #ifdef SMALL  
-		    strm->msg = "error";
+                    strm->msg = "error";
 #else
                     strm->msg = (char *)"incorrect length check";
 #endif

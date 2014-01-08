@@ -309,7 +309,7 @@ void FAR *out_desc;
                 break;
             case 3:
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid block type";
 #endif
@@ -324,7 +324,7 @@ void FAR *out_desc;
             NEEDBITS(32);
             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid stored block lengths";
 #endif
@@ -366,7 +366,7 @@ void FAR *out_desc;
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
 #ifdef SMALL  
-		strm->msg = "error";
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"too many length or distance symbols";
 #endif

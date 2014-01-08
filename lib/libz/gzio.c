@@ -623,21 +623,21 @@ int ZEXPORTVA gzprintf (gzFile file, const char *format, /* args */ ...)
 #else /* not ANSI C */
 
 int ZEXPORTVA gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-	               a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
+                       a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
     gzFile file;
     const char *format;
     int a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-	a11, a12, a13, a14, a15, a16, a17, a18, a19, a20;
+        a11, a12, a13, a14, a15, a16, a17, a18, a19, a20;
 {
     char buf[Z_PRINTF_BUFSIZE];
     int len;
 
 #ifdef HAS_snprintf
     len = snprintf(buf, sizeof(buf), format, a1, a2, a3, a4, a5, a6, a7, a8,
-	     a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
+             a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
 #else
     sprintf(buf, format, a1, a2, a3, a4, a5, a6, a7, a8,
-	    a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
+            a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20);
     len = strlen(buf); /* old sprintf doesn't return the nb of bytes written */
 #endif
     if (len <= 0 || len >= sizeof(buf)) return 0;
@@ -747,67 +747,67 @@ z_off_t ZEXPORT gzseek (file, offset, whence)
     gz_stream *s = (gz_stream*)file;
 
     if (s == NULL || whence == SEEK_END ||
-	s->z_err == Z_ERRNO || s->z_err == Z_DATA_ERROR) {
-	return -1L;
+        s->z_err == Z_ERRNO || s->z_err == Z_DATA_ERROR) {
+        return -1L;
     }
-    
+
     if (s->mode == 'w') {
 #ifdef NO_GZCOMPRESS
-	return -1L;
+        return -1L;
 #else
-	if (whence == SEEK_SET) {
-	    offset -= s->in;
-	}
-	if (offset < 0) return -1L;
+        if (whence == SEEK_SET) {
+            offset -= s->in;
+        }
+        if (offset < 0) return -1L;
 
-	/* At this point, offset is the number of zero bytes to write. */
-	if (s->inbuf == Z_NULL) {
-	    s->inbuf = (Byte*)ALLOC(Z_BUFSIZE); /* for seeking */
-	    if (s->inbuf == Z_NULL) return -1L;
-	    zmemzero(s->inbuf, Z_BUFSIZE);
-	}
-	while (offset > 0)  {
-	    uInt size = Z_BUFSIZE;
-	    if (offset < Z_BUFSIZE) size = (uInt)offset;
+        /* At this point, offset is the number of zero bytes to write. */
+        if (s->inbuf == Z_NULL) {
+            s->inbuf = (Byte*)ALLOC(Z_BUFSIZE); /* for seeking */
+            if (s->inbuf == Z_NULL) return -1L;
+            zmemzero(s->inbuf, Z_BUFSIZE);
+        }
+        while (offset > 0)  {
+            uInt size = Z_BUFSIZE;
+            if (offset < Z_BUFSIZE) size = (uInt)offset;
 
-	    size = gzwrite(file, s->inbuf, size);
-	    if (size == 0) return -1L;
+            size = gzwrite(file, s->inbuf, size);
+            if (size == 0) return -1L;
 
-	    offset -= size;
-	}
-	return s->in;
+            offset -= size;
+        }
+        return s->in;
 #endif
     }
     /* Rest of function is for reading only */
 
     /* compute absolute position */
     if (whence == SEEK_CUR) {
-	offset += s->out;
+        offset += s->out;
     }
     if (offset < 0) return -1L;
 
     if (s->transparent) {
-	/* map to fseek */
-	s->back = EOF;
-	s->stream.avail_in = 0;
-	s->stream.next_in = s->inbuf;
+        /* map to fseek */
+        s->back = EOF;
+        s->stream.avail_in = 0;
+        s->stream.next_in = s->inbuf;
         if (fseek(s->file, offset, SEEK_SET) < 0) return -1L;
 
-	s->in = s->out = offset;
-	return offset;
+        s->in = s->out = offset;
+        return offset;
     }
 
     /* For a negative seek, rewind and use positive seek */
     if (offset >= s->out) {
-	offset -= s->out;
+        offset -= s->out;
     } else if (gzrewind(file) < 0) {
-	return -1L;
+        return -1L;
     }
     /* offset is now the number of bytes to skip. */
 
     if (offset != 0 && s->outbuf == Z_NULL) {
-	s->outbuf = (Byte*)ALLOC(Z_BUFSIZE);
-	if (s->outbuf == Z_NULL) return -1L;
+        s->outbuf = (Byte*)ALLOC(Z_BUFSIZE);
+        if (s->outbuf == Z_NULL) return -1L;
     }
     if (offset && s->back != EOF) {
         s->back = EOF;
@@ -816,18 +816,18 @@ z_off_t ZEXPORT gzseek (file, offset, whence)
         if (s->last) s->z_err = Z_STREAM_END;
     }
     while (offset > 0)  {
-	int size = Z_BUFSIZE;
-	if (offset < Z_BUFSIZE) size = (int)offset;
+        int size = Z_BUFSIZE;
+        if (offset < Z_BUFSIZE) size = (int)offset;
 
-	size = gzread(file, s->outbuf, (uInt)size);
-	if (size <= 0) return -1L;
-	offset -= size;
+        size = gzread(file, s->outbuf, (uInt)size);
+        if (size <= 0) return -1L;
+        offset -= size;
     }
     return s->out;
 }
 
 /* ===========================================================================
-     Rewinds input file. 
+     Rewinds input file.
 */
 int ZEXPORT gzrewind (file)
     gzFile file;
