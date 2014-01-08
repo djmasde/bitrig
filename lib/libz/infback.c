@@ -317,7 +317,7 @@ void FAR *out_desc;
                 state->mode = TABLE;
                 break;
             case 3:
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid block type";
@@ -332,7 +332,7 @@ void FAR *out_desc;
             BYTEBITS();                         /* go to byte boundary */
             NEEDBITS(32);
             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid stored block lengths";
@@ -374,7 +374,7 @@ void FAR *out_desc;
             DROPBITS(4);
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"too many length or distance symbols";
@@ -400,7 +400,11 @@ void FAR *out_desc;
             ret = inflate_table(CODES, state->lens, 19, &(state->next),
                                 &(state->lenbits), state->work);
             if (ret) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid code lengths set";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -423,7 +427,11 @@ void FAR *out_desc;
                         NEEDBITS(here.bits + 2);
                         DROPBITS(here.bits);
                         if (state->have == 0) {
+#ifdef SMALL
+                            strm->msg = "error";
+#else
                             strm->msg = (char *)"invalid bit length repeat";
+#endif
                             state->mode = BAD;
                             break;
                         }
@@ -446,7 +454,11 @@ void FAR *out_desc;
                         DROPBITS(7);
                     }
                     if (state->have + copy > state->nlen + state->ndist) {
+#ifdef SMALL
+                        strm->msg = "error";
+#else
                         strm->msg = (char *)"invalid bit length repeat";
+#endif
                         state->mode = BAD;
                         break;
                     }
@@ -460,7 +472,11 @@ void FAR *out_desc;
 
             /* check for end-of-block code (better have one) */
             if (state->lens[256] == 0) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid code -- missing end-of-block";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -474,7 +490,11 @@ void FAR *out_desc;
             ret = inflate_table(LENS, state->lens, state->nlen, &(state->next),
                                 &(state->lenbits), state->work);
             if (ret) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid literal/lengths set";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -483,7 +503,11 @@ void FAR *out_desc;
             ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
                             &(state->next), &(state->distbits), state->work);
             if (ret) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid distances set";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -543,7 +567,11 @@ void FAR *out_desc;
 
             /* invalid code */
             if (here.op & 64) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid literal/length code";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -575,7 +603,11 @@ void FAR *out_desc;
             }
             DROPBITS(here.bits);
             if (here.op & 64) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid distance code";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -590,7 +622,11 @@ void FAR *out_desc;
             }
             if (state->offset > state->wsize - (state->whave < state->wsize ?
                                                 left : 0)) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid distance too far back";
+#endif
                 state->mode = BAD;
                 break;
             }

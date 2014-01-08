@@ -176,7 +176,11 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
                 dist += (unsigned)hold & ((1U << op) - 1);
 #ifdef INFLATE_STRICT
                 if (dist > dmax) {
+#ifdef SMALL
+                    strm->msg = "error";
+#else
                     strm->msg = (char *)"invalid distance too far back";
+#endif
                     state->mode = BAD;
                     break;
                 }
@@ -189,7 +193,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
                     op = dist - op;             /* distance back in window */
                     if (op > whave) {
                         if (state->sane) {
-#ifdef SMALL  
+#ifdef SMALL
                             strm->msg = "error";
 #else
                             strm->msg =
@@ -290,8 +294,8 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
                 goto dodist;
             }
             else {
-#ifdef SMALL  
-		strm->msg = "error";
+#ifdef SMALL
+                strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distance code";
 #endif
@@ -309,8 +313,8 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
             break;
         }
         else {
-#ifdef SMALL  
-	    strm->msg = "error";
+#ifdef SMALL
+            strm->msg = "error";
 #else
             strm->msg = (char *)"invalid literal/length code";
 #endif

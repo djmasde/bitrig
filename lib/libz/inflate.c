@@ -660,7 +660,7 @@ int flush;
             if (
 #endif
                 ((BITS(8) << 8) + (hold >> 8)) % 31) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"incorrect header check";
@@ -669,7 +669,7 @@ int flush;
                 break;
             }
             if (BITS(4) != Z_DEFLATED) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown compression method";
@@ -682,7 +682,7 @@ int flush;
             if (state->wbits == 0)
                 state->wbits = len;
             else if (len > state->wbits) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid window size";
@@ -701,7 +701,7 @@ int flush;
             NEEDBITS(16);
             state->flags = (int)(hold);
             if ((state->flags & 0xff) != Z_DEFLATED) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown compression method";
@@ -710,7 +710,7 @@ int flush;
                 break;
             }
             if (state->flags & 0xe000) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"unknown header flags set";
@@ -818,7 +818,7 @@ int flush;
             if (state->flags & 0x0200) {
                 NEEDBITS(16);
                 if (hold != (state->check & 0xffff)) {
-#ifdef SMALL  
+#ifdef SMALL
                     strm->msg = "error";
 #else
                     strm->msg = (char *)"header crc mismatch";
@@ -881,7 +881,7 @@ int flush;
                 state->mode = TABLE;
                 break;
             case 3:
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid block type";
@@ -894,7 +894,7 @@ int flush;
             BYTEBITS();                         /* go to byte boundary */
             NEEDBITS(32);
             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid stored block lengths";
@@ -937,7 +937,7 @@ int flush;
             DROPBITS(4);
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"too many length or distance symbols";
@@ -963,7 +963,7 @@ int flush;
             ret = inflate_table(CODES, state->lens, 19, &(state->next),
                                 &(state->lenbits), state->work);
             if (ret) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid code lengths set";
@@ -990,7 +990,7 @@ int flush;
                         NEEDBITS(here.bits + 2);
                         DROPBITS(here.bits);
                         if (state->have == 0) {
-#ifdef SMALL  
+#ifdef SMALL
                             strm->msg = "error";
 #else
                             strm->msg = (char *)"invalid bit length repeat";
@@ -1017,7 +1017,7 @@ int flush;
                         DROPBITS(7);
                     }
                     if (state->have + copy > state->nlen + state->ndist) {
-#ifdef SMALL  
+#ifdef SMALL
                         strm->msg = "error";
 #else
                         strm->msg = (char *)"invalid bit length repeat";
@@ -1035,7 +1035,11 @@ int flush;
 
             /* check for end-of-block code (better have one) */
             if (state->lens[256] == 0) {
+#ifdef SMALL
+                strm->msg = "error";
+#else
                 strm->msg = (char *)"invalid code -- missing end-of-block";
+#endif
                 state->mode = BAD;
                 break;
             }
@@ -1049,7 +1053,7 @@ int flush;
             ret = inflate_table(LENS, state->lens, state->nlen, &(state->next),
                                 &(state->lenbits), state->work);
             if (ret) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid literal/lengths set";
@@ -1062,7 +1066,7 @@ int flush;
             ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
                             &(state->next), &(state->distbits), state->work);
             if (ret) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distances set";
@@ -1120,7 +1124,7 @@ int flush;
                 break;
             }
             if (here.op & 64) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid literal/length code";
@@ -1160,7 +1164,7 @@ int flush;
             DROPBITS(here.bits);
             state->back += here.bits;
             if (here.op & 64) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distance code";
@@ -1180,7 +1184,7 @@ int flush;
             }
 #ifdef INFLATE_STRICT
             if (state->offset > state->dmax) {
-#ifdef SMALL  
+#ifdef SMALL
                 strm->msg = "error";
 #else
                 strm->msg = (char *)"invalid distance too far back";
@@ -1198,7 +1202,11 @@ int flush;
                 copy = state->offset - copy;
                 if (copy > state->whave) {
                     if (state->sane) {
+#ifdef SMALL
+                        strm->msg = "error";
+#else
                         strm->msg = (char *)"invalid distance too far back";
+#endif
                         state->mode = BAD;
                         break;
                     }
@@ -1257,7 +1265,7 @@ int flush;
                      state->flags ? hold :
 #endif
                      ZSWAP32(hold)) != state->check) {
-#ifdef SMALL  
+#ifdef SMALL
                     strm->msg = "error";
 #else
                     strm->msg = (char *)"incorrect data check";
@@ -1274,7 +1282,7 @@ int flush;
             if (state->wrap && state->flags) {
                 NEEDBITS(32);
                 if (hold != (state->total & 0xffffffffUL)) {
-#ifdef SMALL  
+#ifdef SMALL
                     strm->msg = "error";
 #else
                     strm->msg = (char *)"incorrect length check";
