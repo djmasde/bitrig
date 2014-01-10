@@ -94,7 +94,6 @@ local gzFile gz_open(path, fd, mode)
     const char *mode;
 {
     gz_statep state;
-    size_t len;
     int oflag;
 #ifdef O_CLOEXEC
     int cloexec = 0;
@@ -188,33 +187,11 @@ local gzFile gz_open(path, fd, mode)
     }
 
     /* save the path name for error messages */
-#ifdef _WIN32
-    if (fd == -2) {
-        len = wcstombs(NULL, path, 0);
-        if (len == (size_t)-1)
-            len = 0;
-    }
-    else
-#endif
-        len = strlen((const char *)path);
-    state->path = (char *)malloc(len + 1);
+    state->path = strdup(path);
     if (state->path == NULL) {
         free(state);
         return NULL;
     }
-#ifdef _WIN32
-    if (fd == -2)
-        if (len)
-            wcstombs(state->path, path, len + 1);
-        else
-            *(state->path) = 0;
-    else
-#endif
-#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
-        snprintf(state->path, len + 1, "%s", (const char *)path);
-#else
-        strcpy(state->path, path);
-#endif
 
     /* compute the flags for open() */
     oflag =
