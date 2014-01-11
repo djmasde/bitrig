@@ -265,13 +265,12 @@ gzFile ZEXPORT gzdopen(fd, mode)
     char *path;         /* identifier for error messages */
     gzFile gz;
 
-    if (fd == -1 || (path = (char *)malloc(7 + 3 * sizeof(int))) == NULL)
+    if (fd == -1)
         return NULL;
-#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
-    snprintf(path, 7 + 3 * sizeof(int), "<fd:%d>", fd); /* for debugging */
-#else
-    sprintf(path, "<fd:%d>", fd);   /* for debugging */
-#endif
+
+    if (asprintf(&path, "<fd:%d>", fd) == -1) /* for debugging */
+        return NULL;
+
     gz = gz_open(path, fd, mode);
     free(path);
     return gz;
@@ -575,19 +574,11 @@ void ZLIB_INTERNAL gz_error(state, err, msg)
         return;
 
     /* construct error message with path */
-    if ((state->msg = (char *)malloc(strlen(state->path) + strlen(msg) + 3)) ==
-            NULL) {
+    if (asprintf(&state->msg, "%s: %s", state->path, msg) == -1) {
+        state->msg = NULL;
         state->err = Z_MEM_ERROR;
         return;
     }
-#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
-    snprintf(state->msg, strlen(state->path) + strlen(msg) + 3,
-             "%s%s%s", state->path, ": ", msg);
-#else
-    strcpy(state->msg, state->path);
-    strcat(state->msg, ": ");
-    strcat(state->msg, msg);
-#endif
     return;
 }
 
