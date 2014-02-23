@@ -37,6 +37,11 @@
 #define ICD_ADDR	0x1000
 #define ICD_SIZE	0x1000
 
+#define ICD_A7_A15_ADDR	0x1000
+#define ICD_A7_A15_SIZE	0x1000
+#define ICP_A7_A15_ADDR	0x2000
+#define ICP_A7_A15_SIZE	0x1000
+
 /* registers */
 #define	ICD_DCR			0x000
 #define		ICD_DCR_ES		0x00000001
@@ -212,10 +217,19 @@ ampintc_attach(struct device *parent, struct device *self, void *args)
 	arm_init_smask();
 
 	iot = ia->ca_iot;
-	icp = ia->ca_periphbase + ICP_ADDR;
-	icpsize = ICP_SIZE;
-	icd = ia->ca_periphbase + ICD_ADDR;
-	icdsize = ICD_SIZE;
+
+	if ((cputype & CPU_ID_CORTEX_A9_MASK) == CPU_ID_CORTEX_A9) {
+		icp = ia->ca_periphbase + ICP_ADDR;
+		icpsize = ICP_SIZE;
+		icd = ia->ca_periphbase + ICD_ADDR;
+		icdsize = ICD_SIZE;
+	} else if ((cputype & CPU_ID_CORTEX_A7_MASK) == CPU_ID_CORTEX_A7 ||
+	    (cputype & CPU_ID_CORTEX_A15_MASK) == CPU_ID_CORTEX_A15) {
+		icp = ia->ca_periphbase + ICP_A7_A15_ADDR;
+		icpsize = ICP_A7_A15_SIZE;
+		icd = ia->ca_periphbase + ICD_A7_A15_ADDR;
+		icdsize = ICD_A7_A15_SIZE;
+	}
 
 	node = fdt_find_compatible("arm,gic");
 	if (node != NULL) {
