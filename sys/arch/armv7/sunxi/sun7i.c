@@ -39,17 +39,11 @@ struct armv7_dev sxia20_devs[] = {
 	  .mem = { { CCMU_ADDR, CCMU_SIZE } },
 	},
 
-	/* Timers/Counters, resources mapped on first unit */
+	/* Timers/Counter */
 	{ .name = "sxitimer",
 	  .unit = 0,
 	  .mem = {	{ TIMER_ADDR, TIMERx_SIZE },
 			{ CPUCNTRS_ADDR, CPUCNTRS_ADDR } }
-	},
-	{ .name = "sxitimer",
-	  .unit = 1,
-	},
-	{ .name = "sxitimer",
-	  .unit = 2,
 	},
 
 	/* Watchdog Timer */
