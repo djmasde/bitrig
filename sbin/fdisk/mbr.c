@@ -277,11 +277,25 @@ MBR_pcopy(disk_t *disk, mbr_t *mbr)
 int
 MBR_verify(mbr_t *mbr)
 {
-	int i, n;
+	int i, j, n;
+	prt_t *p1, *p2;
 
 	for (i = 0, n = 0; i < NDOSPART; i++) {
-		if (mbr->part[i].id == DOSPTYP_OPENBSD)
+		p1 = &mbr->part[i];
+		if (p1->id == DOSPTYP_UNUSED)
+			continue;
+
+		if (p1->id == DOSPTYP_OPENBSD)
 			n++;
+
+		for (j = i + 1; j < NDOSPART; j++) {
+			p2 = &mbr->part[j];
+			if (p2->id != DOSPTYP_UNUSED && PRT_overlap(p1, p2)) {
+				warnx("Partitions %d and %d are overlapping!", i ,j);
+				if (!ask_yn("Write MBR anyway?"))
+					return (-1);
+			}
+		}
 	}
 	if (n >= 2) {
 		warnx("MBR contains more than one OpenBSD partition!");

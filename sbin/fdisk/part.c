@@ -300,6 +300,12 @@ PRT_print(int num, prt_t *partn, char *units)
 	}
 }
 
+int
+PRT_overlap(prt_t *p1, prt_t *p2)
+{
+	return (p1->bs + p1->ns > p2->bs && p2->bs + p2->ns > p1->bs);
+}
+
 void
 PRT_fix_BN(disk_t *disk, prt_t *part, int pn)
 {

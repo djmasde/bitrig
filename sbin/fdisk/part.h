@@ -44,6 +44,7 @@ const char *PRT_ascii_id(int);
 void PRT_parse(disk_t *, void *, off_t, off_t, prt_t *);
 void PRT_make(prt_t *, off_t, off_t, void *);
 void PRT_print(int, prt_t *, char *);
+int PRT_overlap(prt_t *, prt_t *);
 
 /* This does CHS -> bs/ns */
 void PRT_fix_BN(disk_t *, prt_t *, int);
