@@ -273,3 +273,21 @@ MBR_pcopy(disk_t *disk, mbr_t *mbr)
 		    offset, reloff, &mbr->part[i]);
 	}
 }
+
+int
+MBR_verify(mbr_t *mbr)
+{
+	int i, n;
+
+	for (i = 0, n = 0; i < NDOSPART; i++) {
+		if (mbr->part[i].id == DOSPTYP_OPENBSD)
+			n++;
+	}
+	if (n >= 2) {
+		warnx("MBR contains more than one OpenBSD partition!");
+		if (!ask_yn("Write MBR anyway?"))
+			return (-1);
+	}
+
+	return (0);
+}

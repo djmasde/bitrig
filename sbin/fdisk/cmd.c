@@ -290,16 +290,10 @@ int
 Xwrite(cmd_t *cmd, disk_t *disk, mbr_t *mbr, mbr_t *tt, int offset)
 {
 	char mbr_buf[DEV_BSIZE];
-	int fd, i, n;
+	int fd;
 
-	for (i = 0, n = 0; i < NDOSPART; i++)
-		if (mbr->part[i].id == 0xA6)
-			n++;
-	if (n >= 2) {
-		warnx("MBR contains more than one OpenBSD partition!");
-		if (!ask_yn("Write MBR anyway?"))
-			return (CMD_CONT);
-	}
+	if (MBR_verify(mbr))
+		return (CMD_CONT);
 
 	fd = DISK_open(disk->name, O_RDWR);
 	MBR_make(mbr, mbr_buf);
