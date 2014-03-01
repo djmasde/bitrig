@@ -126,17 +126,12 @@ ask_num(const char *str, int dflt, int low, int high)
 }
 
 int
-ask_pid(int dflt)
+ask_pid(unsigned char dflt)
 {
 	char lbuf[100], *cp;
 	size_t lbuflen;
 	int num;
 	const int low = 0, high = 0xff;
-
-	if (dflt < low)
-		dflt = low;
-	else if (dflt > high)
-		dflt = high;
 
 	do {
 again:
