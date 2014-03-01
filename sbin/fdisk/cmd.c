@@ -224,7 +224,7 @@ Xsetpid(cmd_t *cmd, disk_t *disk, mbr_t *mbr, mbr_t *tt, int offset)
 	PRT_print(pn, pp, NULL);
 
 	/* Ask for partition type */
-	num = ask_pid(pp->id);
+	num = ask_pid((pp->id == DOSPTYP_UNUSED) ? DOSPTYP_OPENBSD : pp->id);
 	if (num != pp->id)
 		ret = CMD_DIRTY;
 
