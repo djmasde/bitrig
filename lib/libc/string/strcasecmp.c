@@ -37,8 +37,7 @@ typedef unsigned char u_char;
 int
 strcasecmp(const char *s1, const char *s2)
 {
-	strcasecmp_l(s1, s2, __get_locale());
-	
+	return strcasecmp_l(s1, s2, __get_locale());
 }
 
 int
@@ -58,7 +57,7 @@ strcasecmp_l(const char *s1, const char *s2, locale_t locale)
 int
 strncasecmp(const char *s1, const char *s2, size_t n)
 {
-	strncasecmp_l(s1, s2, n, __get_locale());
+	return strncasecmp_l(s1, s2, n, __get_locale());
 }
 
 int
