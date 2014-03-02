@@ -348,7 +348,7 @@ PRT_fix_CHS(disk_t *disk, prt_t *part)
 	u_int32_t cyl, head, sect;
 
 	/* Zero out entry if not used */
-	if (part->id == DOSPTYP_UNUSED || part->ns == 0) {
+	if (part->id == DOSPTYP_UNUSED) {
 		memset(part, 0, sizeof(*part));
 		return;
 	}
