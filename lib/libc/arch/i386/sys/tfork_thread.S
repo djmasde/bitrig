@@ -26,9 +26,6 @@
  */
 
 #include <machine/asm.h>
-#if 0
-__FBSDID("$FreeBSD: /repoman/r/ncvs/src/lib/libc/i386/gen/rfork_thread.S,v 1.5 2003/05/07 17:23:25 jhb Exp $");
-#endif
 
 /*
  * With thanks to John Dyson for the original version of this.
