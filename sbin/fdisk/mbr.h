@@ -56,6 +56,7 @@ int MBR_read(int, off_t, char *);
 int MBR_write(int, off_t, char *);
 void MBR_pcopy(disk_t *, mbr_t *);
 int MBR_verify(mbr_t *);
+void MBR_fillremaining(mbr_t *, disk_t *, int);
 
 /* Sanity check */
 #include <sys/param.h>
