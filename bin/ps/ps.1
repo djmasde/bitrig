@@ -41,13 +41,14 @@
 .Sm off
 .Op Fl AaCcdeHhjkLlmrSTuvwx
 .Sm on
+.Op Fl G Ar groups
 .Op Fl M Ar core
 .Op Fl N Ar system
 .Op Fl O Ar fmt
 .Op Fl o Ar fmt
-.Op Fl p Ar pid
-.Op Fl t Ar tty
-.Op Fl U Ar username
+.Op Fl p Ar pids
+.Op Fl t Ar ttys
+.Op Fl U Ar users
 .Op Fl W Ar swap
 .Sh DESCRIPTION
 The
@@ -56,7 +57,11 @@ utility displays information about active processes.
 When given no options,
 .Nm
 prints information about processes of the current user that have a
-controlling terminal.
+controlling terminal. When one or more of the flags
+.Op Fl AaGptU
+are specified,
+.Nm
+prints the union of all selected processes.
 .Pp
 The information displayed is selected based on a set of keywords (and for
 even more control, see the
@@ -98,6 +103,10 @@ hierarchical sorting takes precedence, but
 sorting still takes place at each hierarchy level.
 .It Fl e
 Display the environment as well.
+.It Fl G Ar groups
+Display the processes belonging to a real group ID specified in
+.Ar groups ,
+which is a space or comma separated list of group names and group IDs.
 .It Fl H
 Also display information about kernel visible threads.
 .It Fl h
@@ -140,8 +149,9 @@ Keywords may be appended with an equals sign
 and a string.
 This causes the printed header to use the specified string instead of
 the standard header.
-.It Fl p Ar pid
-Display information associated with the specified process ID.
+.It Fl p Ar pids
+Display information associated with any of the space or comma separated list of
+process IDs specified.
 .It Fl r
 Sort by current CPU usage, instead of by start time ID.
 .It Fl S
@@ -150,12 +160,13 @@ children to their parent process.
 .It Fl T
 Display information about processes attached to the device associated
 with the standard input.
-.It Fl t Ar tty
-Display information about processes attached to the specified terminal
-device.
-.It Fl U Ar username
-Display the processes belonging to the specified
-.Ar username .
+.It Fl t Ar ttys
+Display information about processes attached to any of the space or comma
+separated list of terminal devices specified.
+.It Fl U Ar users
+Display the processes belonging to a real user ID specified in
+.Ar users ,
+which is a space or comma separated list of user names and user IDs.
 .It Fl u
 Display information associated with the following keywords:
 user, pid, %cpu, %mem, vsz, rss, tt, state, start, time, and command.
@@ -570,15 +581,17 @@ The
 .Nm
 utility is compliant with the
 .St -p1003.1-2008
-specification.
+specification, but does not support the optional X/Open System Interfaces
+Extension
+.Pq Dq XSI .
+Behaviour for the flags
+.Op Fl delu
+differ between this implementation and the XSI extension for historical
+reasons.
 .Pp
 The flags
-.Op Fl CcdHhjkLMmNOrST
-are extensions to that specification.
-.Pp
-Behaviour for the
-.Fl e
-flag differs between this implementation and
+.Op Fl CcdeHhjkLMmNOrSTvWwx
+are extensions to
 .St -p1003.1-2008 .
 .Sh HISTORY
 A
