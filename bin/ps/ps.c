@@ -71,6 +71,7 @@ enum sort { DEFAULT, SORTMEM, SORTCPU } sortby = DEFAULT;
 
 static char	*kludge_oldps_options(char *);
 static int	 pscomp(const void *, const void *);
+static void	 hiersort(PINFO **, int);
 static void	 scanvars(void);
 static void	 usage(void);
 
@@ -89,15 +90,16 @@ int kvm_sysctl_only;
 int
 main(int argc, char *argv[])
 {
-	struct kinfo_proc *kp, **kinfo;
+	struct kinfo_proc *kp;
+	struct pinfo **pinfo;
 	struct varent *vent;
 	struct winsize ws;
 	struct passwd *pwd;
 	dev_t ttydev;
 	pid_t pid;
 	uid_t uid;
-	int all, ch, flag, i, fmt, lineno, nentries;
-	int prtheader, showthreads, wflag, kflag, what, Uflag, xflg;
+	int all, ch, flag, i, j, fmt, lineno, nentries;
+	int prtheader, showthreads, dflg, wflag, kflag, what, Uflag, xflg;
 	char *nlistf, *memf, *swapf, errbuf[_POSIX2_LINE_MAX];
 
 	if ((ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 &&
@@ -111,13 +113,14 @@ main(int argc, char *argv[])
 	if (argc > 1)
 		argv[1] = kludge_oldps_options(argv[1]);
 
-	all = fmt = prtheader = showthreads = wflag = kflag = Uflag = xflg = 0;
+	all = fmt = prtheader = showthreads = 0;
+	dflg = wflag = kflag = Uflag = xflg = 0;
 	pid = -1;
 	uid = 0;
 	ttydev = NODEV;
 	memf = nlistf = swapf = NULL;
 	while ((ch = getopt(argc, argv,
-	    "AaCcegHhjkLlM:mN:O:o:p:rSTt:U:uvW:wx")) != -1)
+	    "AaCcdegHhjkLlM:mN:O:o:p:rSTt:U:uvW:wx")) != -1)
 		switch (ch) {
 		case 'A':
 			all = 1;
@@ -131,6 +134,9 @@ main(int argc, char *argv[])
 			break;
 		case 'c':
 			commandonly = 1;
+			break;
+		case 'd':
+			dflg = 1;
 			break;
 		case 'e':			/* XXX set ufmt */
 			needenv = 1;
@@ -328,28 +334,35 @@ main(int argc, char *argv[])
 	printheader();
 	if (nentries == 0)
 		exit(1);
-	/*
-	 * sort proc list, we convert from an array of structs to an array
-	 * of pointers to make the sort cheaper.
-	 */
-	if ((kinfo = calloc(sizeof(*kinfo), nentries)) == NULL)
-		err(1, "failed to allocate memory for proc pointers");
-	for (i = 0; i < nentries; i++)
-		kinfo[i] = &kp[i];
-	qsort(kinfo, nentries, sizeof(*kinfo), pscomp);
+
+	if ((pinfo = calloc(nentries, sizeof(*pinfo))) == NULL)
+		err(1, NULL);
+
+	for (i = j = 0; i < nentries; i++) {
+		if (showthreads == 0 && (kp[i].p_flag & P_THREAD) != 0)
+			continue;
+		if (xflg == 0 && ((int)kp[i].p_tdev == NODEV ||
+		    (kp[i].p_psflags & PS_CONTROLT) == 0))
+			continue;
+		if (showthreads && kp[i].p_tid == -1)
+			continue;
+
+		if ((pinfo[j] = calloc(1, sizeof(PINFO))) == NULL)
+			err(1, NULL);
+		pinfo[j++]->ki = &kp[i];
+	}
+	nentries = j;
+
+	qsort(pinfo, nentries, sizeof(*pinfo), pscomp);
+	if (dflg)
+		hiersort(pinfo, nentries);
+
 	/*
 	 * for each proc, call each variable output function.
 	 */
 	for (i = lineno = 0; i < nentries; i++) {
-		if (showthreads == 0 && (kinfo[i]->p_flag & P_THREAD) != 0)
-			continue;
-		if (xflg == 0 && ((int)kinfo[i]->p_tdev == NODEV ||
-		    (kinfo[i]->p_psflags & PS_CONTROLT ) == 0))
-			continue;
-		if (showthreads && kinfo[i]->p_tid == -1)
-			continue;
 		SIMPLEQ_FOREACH(vent, &vhead, entries) {
-			(vent->var->oproc)(kinfo[i], vent);
+			(vent->var->oproc)(pinfo[i], vent);
 			if (SIMPLEQ_NEXT(vent, entries) != SIMPLEQ_END(&vhead))
 				(void)putchar(' ');
 		}
@@ -360,6 +373,11 @@ main(int argc, char *argv[])
 			lineno = 0;
 		}
 	}
+	for (i = 0; i < nentries; i++) {
+		free(pinfo[i]->siblings);
+		free(pinfo[i]);
+	}
+	free(pinfo);
 	exit(eval);
 }
 
@@ -387,19 +405,97 @@ scanvars(void)
 static int
 pscomp(const void *v1, const void *v2)
 {
-	const struct kinfo_proc *kp1 = *(const struct kinfo_proc **)v1;
-	const struct kinfo_proc *kp2 = *(const struct kinfo_proc **)v2;
+	const PINFO *pi1 = *(const PINFO **)v1;
+	const PINFO *pi2 = *(const PINFO **)v2;
 	int i;
 #define VSIZE(k) ((k)->p_vm_dsize + (k)->p_vm_ssize + (k)->p_vm_tsize)
 
-	if (sortby == SORTCPU && (i = getpcpu(kp2) - getpcpu(kp1)) != 0)
+	if (sortby == SORTCPU && (i = getpcpu(pi2) - getpcpu(pi1)) != 0)
 		return (i);
-	if (sortby == SORTMEM && (i = VSIZE(kp2) - VSIZE(kp1)) != 0)
+	if (sortby == SORTMEM && (i = VSIZE(pi2->ki) - VSIZE(pi1->ki)) != 0)
 		return (i);
-	if ((i = kp1->p_tdev - kp2->p_tdev) == 0 &&
-	    (i = kp1->p_ustart_sec - kp2->p_ustart_sec) == 0)
-		i = kp1->p_ustart_usec - kp2->p_ustart_usec;
+	if ((i = pi1->ki->p_tdev - pi2->ki->p_tdev) == 0 &&
+	    (i = pi1->ki->p_ustart_sec - pi2->ki->p_ustart_sec) == 0)
+		i = pi1->ki->p_ustart_usec - pi2->ki->p_ustart_usec;
 	return (i);
+}
+
+/*
+ * Hierarchically sort processes while maintaining their relative order on
+ * each hierarchy level. Populate level and siblings variables per process.
+ */
+static void
+hiersort(PINFO **pinfo, int nentries)
+{
+	size_t i, j, k, level, nhier;
+	PINFO *tmp;
+	pid_t *hier;
+
+	level = 0;
+	nhier = 16;	/* expected maximum nesting level */
+	if ((hier = calloc(nhier, sizeof(*hier))) == NULL)
+		err(1, NULL);
+
+	for (i = 0; i < nentries; i++) {
+		/*
+		 * Find the next child on the current nesting level. If there
+		 * is none, move up to the parent level and try again until we
+		 * find one.
+		 */
+		for (; level; level--) {
+			for (j = i; j < nentries; j++)
+				if (pinfo[j]->ki->p_ppid == hier[level-1])
+					goto done;
+		}
+
+		/* Find the next orphan process. */
+		for (j = i; j < nentries; j++) {
+			if (pinfo[j]->ki->p_pid == pinfo[j]->ki->p_ppid)
+				goto done;
+
+			for (k = i; k < nentries; k++) {
+				if (pinfo[k]->ki->p_pid == pinfo[j]->ki->p_ppid)
+					break;
+			}
+			if (k == nentries)
+				goto done;
+		}
+
+done:
+		if (j != i) {
+			tmp = pinfo[i];
+			pinfo[i] = pinfo[j];
+			pinfo[j] = tmp;
+		}
+		pinfo[i]->level = level;
+
+		level++;
+		if (nhier < level) {
+			nhier *= 2;
+			if (nhier < level || SIZE_MAX / sizeof(*hier) < nhier)
+				errx(1, "hierarchy too deep");
+			hier = realloc(hier, nhier * sizeof(*hier));
+			if (hier == NULL)
+				err(1, NULL);
+		}
+		hier[level-1] = pinfo[i]->ki->p_pid;
+
+		/* Populate siblings field. */
+		if (!pinfo[i]->level)
+			continue;
+
+		pinfo[i]->siblings =
+		    calloc(pinfo[i]->level/8 + 1, sizeof(uint8_t));
+		if (pinfo[i]->siblings == NULL)
+			err(1, NULL);
+
+		for (j = i; j > 0; j--) {
+			if (pinfo[j - 1]->level < pinfo[i]->level)
+				break;
+			SETSIB(pinfo[j - 1], pinfo[i]->level);
+		}
+	}
+	free(hier);
 }
 
 /*
@@ -468,9 +564,8 @@ static void
 usage(void)
 {
 	(void)fprintf(stderr,
-	    "usage: %s [-AaCceHhjkLlmrSTuvwx] [-M core] [-N system] [-O fmt] [-o fmt] [-p pid]\n",
-	    __progname);	
-	(void)fprintf(stderr,
-	    "%-*s[-t tty] [-U username] [-W swap]\n", (int)strlen(__progname) + 8, "");
+	    "usage: %s [-AaCcdeHhjkLlmrSTuvwx] [-M core] [-N system] [-O fmt] [-o fmt]\n"
+	    "%-*s[-p pid] [-t tty] [-U username] [-W swap]\n",
+	    __progname,  (int)strlen(__progname) + 8, "");
 	exit(1);
 }

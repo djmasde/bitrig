@@ -32,6 +32,8 @@
  *	@(#)ps.h	8.1 (Berkeley) 5/31/93
  */
 
+#include <stddef.h>
+#include <stdint.h>
 #include <sys/queue.h>
 
 #define	UNLIMITED	0	/* unlimited terminal width */
@@ -55,6 +57,14 @@ typedef struct varent {
 
 SIMPLEQ_HEAD(varent_list, varent);
 
+typedef struct pinfo {
+	struct kinfo_proc	*ki;	/* returned by kvm_getprocs */
+	size_t	level;		/* hierarchy nesting level */
+#define SETSIB(p, l)	(p->siblings[(l) / 8] |= 1 << (l) % 8)
+#define HASSIB(p, l)	(p->siblings[(l) / 8] & 1 << (l) % 8)
+	uint8_t	*siblings;	/* bitmask indicating presence of siblings */
+} PINFO;
+
 struct kinfo_proc;
 typedef struct var {
 	char	*name;		/* name(s) of variable */
@@ -67,7 +77,7 @@ typedef struct var {
 #define	NLIST	0x10		/* needs nlist info from kernel */
 	u_int	flag;
 				/* output routine */
-	void	(*oproc)(const struct kinfo_proc *, struct varent *);
+	void	(*oproc)(const PINFO *, VARENT *);
 	short	width;		/* printing width */
 	char	parsed;		/* have we been parsed yet? (avoid dupes) */
 	/*
