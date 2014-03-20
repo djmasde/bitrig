@@ -63,7 +63,7 @@ LINK	instbin					sbin/sysctl
 LINK	instbin					sbin/bioctl
 
 # this is the list from distrib/miniroot/makeconf.awk with -lz added.
-LIBS	-lstubs -lutil -lotermcap -lm -lz
+LIBS -lstubs -lutil -locurses -lssl -lcrypto -ledit -lz -lm -lc
 
 # copy the MAKEDEV script and make some devices
 SCRIPT	${DESTDIR}/dev/MAKEDEV			dev/MAKEDEV

@@ -26,7 +26,7 @@ KERNADDR_IMX=0x10300000
 KERNADDR_EXYNOS=0x40800000
 KERNADDR_SUNXI=0x40800000
 
-DISKTYPE=       rdroot
+DISKTYPE=       rdroot51
 NBLKS=		10240
 # minfree, opt, b/i  trks, sects, cpg
 NEWFSARGS= -m 0 -o space -i 4096
